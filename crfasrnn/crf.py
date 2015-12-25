@@ -2,8 +2,35 @@ import sys,time,os,glob,logging
 sys.path.append('/home/ubuntu/crfasrnn/caffe-crfrnn/python')
 import caffe
 import numpy as np
-from settings import pallete
 from PIL import Image as PILImage
+pallete = [0,0,0,
+            128,0,0,
+            0,128,0,
+            128,128,0,
+            0,0,128,
+            128,0,128,
+            0,128,128,
+            128,128,128,
+            64,0,0,
+            192,0,0,
+            64,128,0,
+            192,128,0,
+            64,0,128,
+            192,0,128,
+            64,128,128,
+            192,128,128,
+            0,64,0,
+            128,64,0,
+            0,192,0,
+            128,192,0,
+            0,64,128,
+            128,64,128,
+            0,192,128,
+            128,192,128,
+            64,64,0,
+            192,64,0,
+            64,192,0,
+            192,192,0]
 
 
 def process(input_image,net):
