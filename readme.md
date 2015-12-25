@@ -1,0 +1,1 @@
+A simple implementation of Visual Search using neural networks (under development)
