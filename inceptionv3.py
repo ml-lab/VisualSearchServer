@@ -4,6 +4,7 @@ import tensorflow as tf
 import time,glob
 from tensorflow.python.platform import gfile
 
+
 class NodeLookup(object):
     def __init__(self):
         label_lookup_path = 'data/imagenet_2012_challenge_label_map_proto.pbtxt'
@@ -55,18 +56,15 @@ if __name__ == '__main__':
         image_data.append(gfile.FastGFile(fname, 'rb').read())
         if i == 100:
             break
-    print "{} Images loaded".format(i)
+    print "{} Images loaded".format(len(image_data))
     with tf.Session() as sess:
         node_lookup = NodeLookup()
         for data in image_data:
             start = time.time()
-            try:
-                softmax_tensor = sess.graph.get_tensor_by_name('softmax:0')
-                predictions = sess.run(softmax_tensor,{'DecodeJpeg/contents:0': data})
-                predictions = np.squeeze(predictions)
-            except:
-                print "error"
-                pass
+            pool3 = sess.graph.get_tensor_by_name('pool_3:0')
+            pool3_features = sess.run(pool3,{'DecodeJpeg/contents:0': data})
+            pool3_features = np.squeeze(pool3_features)
+            print pool3_features.shape
             print time.time()-start
             # top_k = predictions.argsort()[-5:][::-1]
             # for node_id in top_k:
