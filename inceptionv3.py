@@ -50,24 +50,39 @@ with gfile.FastGFile('network.pb', 'rb') as f:
     _ = tf.import_graph_def(graph_def, name='')
 
 
-if __name__ == '__main__':
-    image_data = []
+def get_batch():
+    image_data = {}
     for i,fname in enumerate(glob.glob("dataset*/*.jpg")):
-        image_data.append(gfile.FastGFile(fname, 'rb').read())
-        if i == 100:
-            break
-    print "{} Images loaded".format(len(image_data))
+        image_data[fname] = gfile.FastGFile(fname, 'rb').read()
+        if i % 1000 == 0:
+            yield image_data
+            image_data = {}
+    yield image_data
+
+
+if __name__ == '__main__':
+    import marshal
+    count = 0
+    start = time.time()
     with tf.Session() as sess:
         node_lookup = NodeLookup()
-        for data in image_data:
+        pool3 = sess.graph.get_tensor_by_name('pool_3:0')
+        for image_data in get_batch():
+            print "loaded 1000 batch",time.time()-start
+            print "starting 1000 batch",len(image_data)
             start = time.time()
-            pool3 = sess.graph.get_tensor_by_name('pool_3:0')
-            pool3_features = sess.run(pool3,{'DecodeJpeg/contents:0': data})
-            pool3_features = np.squeeze(pool3_features)
-            print pool3_features.shape
+            features = {}
+            count += 1
+            for fname,data in image_data.iteritems():
+                try:
+                    pool3_features = sess.run(pool3,{'DecodeJpeg/contents:0': data})
+                    features[fname.split('/')[-1]] = np.squeeze(pool3_features)
+                except:
+                    print "Error",fname.split('/')[-1]
+                    pass
             print time.time()-start
-            # top_k = predictions.argsort()[-5:][::-1]
-            # for node_id in top_k:
-            #     human_string = node_lookup.id_to_string(node_id)
-            #     score = predictions[node_id]
-            #     print('%s (score = %.5f)' % (human_string, score))
+            with open("{}.feats_pool3".format(count),'w') as feats:
+                marshal.dump(features,feats)
+            print "stored"
+            start = time.time()
+
