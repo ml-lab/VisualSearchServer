@@ -1,3 +1,4 @@
 A simple implementation of Visual Search using neural networks (under development)
 
-Please take a look at notebook_explore_index.ipynb to take 
+Please take a look at notebook_index.ipynb to see examples of results from Nearest Neighbor search on Inception Pool 3 layer features.
+ 
