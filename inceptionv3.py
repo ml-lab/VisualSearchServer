@@ -96,8 +96,8 @@ if __name__ == '__main__':
                     print "Error",fname.split('/')[-1]
                     pass
             logging.info(str(time.time()-start))
-            feat_fname = "{}.feats_pool3.npy".format(count)
-            files_fname = "{}.files".format(count)
+            feat_fname = "{}.feats_pool3.400k.npy".format(count)
+            files_fname = "{}.400k.files".format(count)
             with open(feat_fname,'w') as feats:
                 np.save(feats,np.array(features))
             with open(files_fname,'w') as filelist:
