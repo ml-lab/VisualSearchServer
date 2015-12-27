@@ -7,8 +7,8 @@ BUCKET_NAME = "aub3data"
 BUCKET = s3.Bucket(BUCKET_NAME)
 AMI = ''
 USER = "ubuntu"
-HOST = "52.23.172.63"
-private_key = "~/.ssh/cs5356"
+HOST = "54.164.102.145"
+private_key =  "~/.ssh/cs5356" # "~/.ssh/cornellaub3nca.pem" #
 S3BUCKET = ""
 CONFIG_PATH = __file__.split('settings.py')[0]
 

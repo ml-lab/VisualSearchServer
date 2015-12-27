@@ -1,9 +1,15 @@
-import re
+import time,glob,re,sys,logging,os
 import numpy as np
 import tensorflow as tf
-import time,glob
 from tensorflow.python.platform import gfile
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                    datefmt='%m-%d %H:%M',
+                    filename='logs/worker.log',
+                    filemode='a')
 
+BATCH_SIZE = 1000
+AWS = sys.platform != 'darwin'
 
 class NodeLookup(object):
     def __init__(self):
@@ -51,13 +57,22 @@ with gfile.FastGFile('network.pb', 'rb') as f:
 
 
 def get_batch():
+    path = "/mnt/dataset/*" if AWS else "dataset*/*.jpg"
     image_data = {}
-    for i,fname in enumerate(glob.glob("dataset*/*.jpg")):
-        image_data[fname] = gfile.FastGFile(fname, 'rb').read()
-        if i % 1000 == 0:
+    logging.info("starting with path {}".format(path))
+    for i,fname in enumerate(glob.glob(path)):
+        try:
+            image_data[fname] = gfile.FastGFile(fname, 'rb').read()
+        except:
+            logging.info("failed to load {}".format(fname))
+            pass
+        if i % BATCH_SIZE == 0:
+            logging.info("Loaded {}".format(i))
             yield image_data
             image_data = {}
     yield image_data
+    logging.info("Finished {}".format(i))
+
 
 
 if __name__ == '__main__':
@@ -68,21 +83,26 @@ if __name__ == '__main__':
         node_lookup = NodeLookup()
         pool3 = sess.graph.get_tensor_by_name('pool_3:0')
         for image_data in get_batch():
-            print "loaded 1000 batch",time.time()-start
-            print "starting 1000 batch",len(image_data)
+            logging.info("starting feature extraction batch {}".format(len(image_data)))
             start = time.time()
-            features = {}
+            features,files = [],[]
             count += 1
             for fname,data in image_data.iteritems():
                 try:
                     pool3_features = sess.run(pool3,{'DecodeJpeg/contents:0': data})
-                    features[fname.split('/')[-1]] = np.squeeze(pool3_features)
+                    features.append(np.squeeze(pool3_features))
+                    files.append(fname)
                 except:
                     print "Error",fname.split('/')[-1]
                     pass
-            print time.time()-start
-            with open("{}.feats_pool3".format(count),'w') as feats:
-                marshal.dump(features,feats)
-            print "stored"
-            start = time.time()
-
+            logging.info(str(time.time()-start))
+            feat_fname = "{}.feats_pool3.npy".format(count)
+            files_fname = "{}.files".format(count)
+            with open(feat_fname,'w') as feats:
+                np.save(feats,np.array(features))
+            with open(files_fname,'w') as filelist:
+                filelist.write("\n".join(files))
+            if AWS:
+                os.system('aws s3 mv {} s3://aub3visualsearch/ --region "us-east-1"'.format(feat_fname))
+                os.system('aws s3 mv {} s3://aub3visualsearch/ --region "us-east-1"'.format(files_fname))
+                logging.info("uploaded {}".format(feat_fname))
