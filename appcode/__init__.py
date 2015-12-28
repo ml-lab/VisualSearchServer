@@ -7,10 +7,6 @@ app = Flask(__name__,static_folder=os.path.join(os.path.dirname(__file__), 'stat
 app.jinja_env = config.jinja_env
 
 
-
-
-
-
 if os.environ.get('SERVER_SOFTWARE',''):
     # print os.environ.get('SERVER_SOFTWARE','')
     view.add_views(app)
