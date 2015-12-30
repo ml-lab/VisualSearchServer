@@ -66,42 +66,47 @@ def get_batch():
         except:
             logging.info("failed to load {}".format(fname))
             pass
-        if i % BATCH_SIZE == 0:
+        if i+1 % BATCH_SIZE == 0:
             logging.info("Loaded {}".format(i))
             yield image_data
+            print "Len {}".format(len(image_data))
+            print "\n\n\n"
             image_data = {}
     yield image_data
     logging.info("Finished {}".format(i))
 
 
+def store_index(features,files,count):
+    feat_fname = "{}.feats_pool3.npy".format(count)
+    files_fname = "{}.files".format(count)
+    with open(feat_fname,'w') as feats:
+        np.save(feats,np.array(features))
+    with open(files_fname,'w') as filelist:
+        filelist.write("\n".join(files))
+    if AWS:
+        os.system('aws s3 mv {} s3://aub3visualsearch/450k/ --region "us-east-1"'.format(feat_fname))
+        os.system('aws s3 mv {} s3://aub3visualsearch/450k/ --region "us-east-1"'.format(files_fname))
+        logging.info("uploaded {}".format(feat_fname))
+
+def extract_features(data,sess):
+    pool3 = sess.graph.get_tensor_by_name('pool_3:0')
+    start = time.time()
+    features = []
+    for data in image_data.itervalues():
+        pool3_features = sess.run(pool3,{'DecodeJpeg/contents:0': data})
+        features.append(np.squeeze(pool3_features))
+    logging.info(str(time.time()-start))
+    return features
 
 if __name__ == '__main__':
     count = 0
     start = time.time()
     with tf.Session() as sess:
         node_lookup = NodeLookup()
-        pool3 = sess.graph.get_tensor_by_name('pool_3:0')
         for image_data in get_batch():
             logging.info("starting feature extraction batch {}".format(len(image_data)))
-            start = time.time()
-            features,files = [],[]
             count += 1
-            for fname,data in image_data.iteritems():
-                try:
-                    pool3_features = sess.run(pool3,{'DecodeJpeg/contents:0': data})
-                    features.append(np.squeeze(pool3_features))
-                    files.append(fname)
-                except:
-                    logging.info("Error",fname.split('/')[-1])
-                    pass
-            logging.info(str(time.time()-start))
-            feat_fname = "{}.feats_pool3.npy".format(count)
-            files_fname = "{}.files".format(count)
-            with open(feat_fname,'w') as feats:
-                np.save(feats,np.array(features))
-            with open(files_fname,'w') as filelist:
-                filelist.write("\n".join(files))
-            if AWS:
-                os.system('aws s3 mv {} s3://aub3visualsearch/450k/ --region "us-east-1"'.format(feat_fname))
-                os.system('aws s3 mv {} s3://aub3visualsearch/450k/ --region "us-east-1"'.format(files_fname))
-                logging.info("uploaded {}".format(feat_fname))
+            data = image_data.values()
+            print type(image_data)
+            print type(image_data)[0]
+            features = extract_features(data,sess)
