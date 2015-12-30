@@ -1,5 +1,7 @@
+Visual Search Server
+===============
+
 A simple implementation of Visual Search using TensorFlow, InceptionV3 model and AWS GPU instances  (under development)
-==================
 
 This codebase implements a simple visual indexing and search system, using features derived from Google's inception 
 model training on the imagenet data. The easist way to use this codebase is to launch following AMI using GPU enabled g2 instances.
