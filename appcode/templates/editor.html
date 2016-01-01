@@ -82,7 +82,10 @@
     </div>
     <div class=" col-xs-12 col-sm-12 col-md-12 col-lg-4 m-t">
         <div class="row">
-            <h2>Result asdmasdnasinaisndoasndaosdnoasndosandoandiasd</h2>
+            <div ng-repeat="item in results" class="col-lg-4" >
+                  <img style="width:100%" ng-src="/static/examples/{[ item ]}" />
+                    <h4 class="text-center">{[ item ]}</h4>
+            </div>
         </div>
     </div>
 </div>

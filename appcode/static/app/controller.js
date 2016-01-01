@@ -390,12 +390,16 @@ $scope.segment = function () {
         type: "POST",
         url: '/Search',
         dataType: 'json',
-        async: false,
+        async: true,
         data: {
             'image_url': canvas.toDataURL()
         },
-        success: function () {
-        alert("Thanks!");
+        success: function (response) {
+            debugger;
+            console.log(response);
+            $scope.results = response.results;
+            $scope.$$phase || $scope.$digest();
+
         }
     });
 };
@@ -419,14 +423,15 @@ function watchCanvas($scope) {
 
 
 cveditor.controller('CanvasControls', function($scope) {
-  $scope.convnet_mode = false;
-  $scope.yax = $('#yaxis');
-  $scope.canvas = canvas;
-  $scope.output_canvas = output_canvas;
-  $scope.getActiveStyle = getActiveStyle;
-  $scope.dev = false;
-  $scope.status = "Please add image.";
-  $scope.current_mode = null;
-  addAccessors($scope);
-  watchCanvas($scope);
+    $scope.convnet_mode = false;
+    $scope.yax = $('#yaxis');
+    $scope.canvas = canvas;
+    $scope.output_canvas = output_canvas;
+    $scope.getActiveStyle = getActiveStyle;
+    $scope.dev = false;
+    $scope.status = "Please add image.";
+    $scope.current_mode = null;
+    $scope.results = [];
+    addAccessors($scope);
+    watchCanvas($scope);
 });

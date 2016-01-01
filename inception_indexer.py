@@ -139,6 +139,17 @@ def extract_features(image_data,sess):
     logging.info(str(time.time()-start))
     return features,files
 
+
+def download(filename):
+    try:
+        os.mkdir("appcode/static/examples")
+    except:
+        pass
+    if AWS:
+        os.system("cp dataset/{} examples/{}".format(filename.split("/")[-1],filename.split("/")[-1]))
+    else:
+        os.system("aws s3 cp s3://aub3data/dataset/{} appcode/static/examples/{}".format(filename.split("/")[-1],filename.split("/")[-1]))
+
 if __name__ == '__main__':
     load_network()
     count = 0
