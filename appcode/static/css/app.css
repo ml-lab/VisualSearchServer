@@ -3,15 +3,12 @@
 }
 
 body{
-   min-width:1500px; /* suppose you want minimun width of 1000px */
-   width: auto !important;  /* Firefox will set width as auto */
-   width:1500px;             /* As IE ignores !important it will set width as 1000px; */
+   min-width:770px; /* suppose you want minimun width of 1000px */
+   /*width: auto !important;  !* Firefox will set width as auto *!*/
+   /*width:1500px;             !* As IE ignores !important it will set width as 1000px; *!*/
    overflow-x: auto !important;
 }
 
-.content{
-    width: 1500px !important;
-}
 
 #output_canvas{
     background-color: white;
@@ -97,6 +94,11 @@ input[type=color] {
     text-align:center;
 }
 
+.input {
+    width: 530px !important;
+}
+
+
 #btnLoad{
     margin-left: 0 !important;
 }
@@ -105,6 +107,13 @@ input[type=color] {
     height: 71px;
     text-align: left;
 }
+
+.operation_search{
+    height: 71px;
+    margin-top: 15px;
+    text-align: center;
+}
+
 
 .operations_output{
     height: 71px;
@@ -176,9 +185,6 @@ input[type=color] {
 .gui > .main{
     width:100% !important;
 }
-.input {
-    width: 670px !important;
-}
 
 #drawing-mode-options{
     margin: 0 0 0 15px;
@@ -194,9 +200,6 @@ input[type=color] {
     padding-top: 0 !important;
 }
 
-#segment{
-    float: right;
-}
 #status{
   width: 700px;
   text-align: center;
@@ -256,8 +259,8 @@ div.hopscotch-bubble {
     z-index: 0 !important;
 }
 
-@media (max-width: 767px){
-.main-header .logo, .main-header .navbar {
+@media (max-width: 1290px){
+#status  {
     display: none !important;
     }
 }

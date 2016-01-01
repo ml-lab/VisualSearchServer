@@ -27,25 +27,15 @@ var canvas = new fabric.Canvas('canvas'),
 
 initialize_ui = function () {
     var jsfeat_gui = new dat.GUI({ autoPlace: false });
-    var pf_opt, slic_opt;
-    //pf_opt = function () {
-    //this.sigma = 0;
-    //this.threshold = 1000;
-    //this.minSize = 1000;
-    //};
+    var slic_opt;
     slic_opt = function () {
     this.regionSize = 30;
     this.minSize = 20;
     };
-    //state.options.pf = new pf_opt();
     state.options.slic = new slic_opt();
     var slic_gui = jsfeat_gui.addFolder('Superpixel Segmentation');
     slic_gui.add(state.options.slic, "regionSize", 20, 400);
     slic_gui.add(state.options.slic, "minSize", 2, 100);
-    //var pf_gui = jsfeat_gui.addFolder('PF Graph Segmentation (Not Used)');
-    //pf_gui.add(state.options.pf, "threshold", 20, 40000);
-    //pf_gui.add(state.options.pf, "sigma", 0, 20);
-    //pf_gui.add(state.options.pf, "minSize", 2, 10000);
     $("#dat_gui").append(jsfeat_gui.domElement);
     canvas.backgroundColor = '#ffffff';
     $('#bg-color').val('#ffffff');
@@ -64,12 +54,6 @@ initialize_ui = function () {
             img.src = fr.result;
         };
         fr.readAsDataURL(file);
-    });
-      delta_left = $('#output_canvas').offset().left - $('#canvas').offset().left + jqwindow.scrollLeft();
-      delta_top = $('#output_canvas').offset().top - $('#canvas').offset().top + jqwindow.scrollTop();
-    jqwindow.scroll(function () {
-      delta_left = $('#output_canvas').offset().left - $('#canvas').offset().left + jqwindow.scrollLeft();
-      delta_top = $('#output_canvas').offset().top - $('#canvas').offset().top + jqwindow.scrollTop();
     });
 //    fabric.Image.fromURL("/static/img/demo.jpg", function(oImg){canvas.add(oImg);},load_options = {crossOrigin:"Anonymous"});
 };
@@ -184,7 +168,7 @@ var tour = {
     },
     {
       title: "Draw foreground",
-      content: "Mark foreground regions.",
+      content: "Optional foreground regions.",
       target: document.querySelector("#drawing-mode_f"),
       placement: "bottom"
     },

@@ -3,13 +3,58 @@
 {% block page_content %}
 <section class="content">
 <div class="row large-margin">
-    <div class="col-xs-1 m-t" object-buttons-enabled="getSelected()" id="side_options">
+    <div class="col-xs-1 col-sm-1 m-t" object-buttons-enabled="getSelected()" id="side_options">
         <div class="outer">
         <div class="middle">
         <div class="inner">
         <button type="button" class="btn  bg-red btn-app btn-move"  id="clear" ng-click="confirmClear()"><i class="fa fa-trash"></i>Clean editor</button>
         <button type="button" class="btn  bg-yellow btn-app btn-move"  id="clear_mask" ng-click="confirmClearMasks()"><i class="fa fa-trash"></i> Clear masks</button>
-        <button type="button" class="btn  bg-green btn-app btn-move"  id="reset_zoom" ng-click="resetZoom()"><i class="fa fa-search"></i> Reset Zoom</button>
+        <button type="button" class="btn  bg-green btn-app btn-move"  id="reset_zoom" ng-click="resetZoom()"><i class="fa fa-refresh"></i> Reset Zoom</button>
+    </div>
+    </div>
+    </div>
+    </div>
+    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4  m-t input">
+        <div class="operations">
+            <form id="image-form"  onsubmit="return false;">
+                <input type='file'  id='imgfile' style="display:none"/>
+                <a type='button' class="btn btn-app btn-default" id='btnLoad' ng-click='load_image();'><i class="fa fa-image"></i>Add image</a>
+            </form>
+            <button id="drawing-mode_f"
+              ng-click="setFreeDrawingMode(!getFreeDrawingMode(1),1)"
+              ng-class="{'btn-inverse': getFreeDrawingMode(1)}" class="btn bg-green btn-app">
+              <i class="fa fa-pencil"></i> Highlight </button>
+            <button id="drawing-mode_b"
+              ng-click="setFreeDrawingMode(!getFreeDrawingMode(2),2)"
+              ng-class="{'btn-inverse': getFreeDrawingMode(2)}" class="btn bg-red btn-app">
+              <i class="fa fa-pencil"></i> Exclude </button>
+            <div ng-show="getFreeDrawingMode(1)" class="drawing-mode">
+                <button id="drawing-mode_x" ng-click="setFreeDrawingMode(!getFreeDrawingMode(1),1)" class="btn bg-red btn-app stop_btn"> <i class="fa fa-close"></i>Stop Drawing!</button>
+            </div>
+            <div ng-show="getFreeDrawingMode(2)" class="drawing-mode">
+                <button id="drawing-mode_x_2" ng-click="setFreeDrawingMode(!getFreeDrawingMode(2),2)" class="btn bg-red btn-app stop_btn"> <i class="fa fa-close"></i>Stop Drawing!</button>
+            </div>
+            <div id="drawing-mode-wrapper"  class="drawing-mode">
+            <div id="drawing-mode-options"  ng-show="getFreeDrawingMode()">
+              <h5>Brush width</h5>
+              <input type="range" value="30" min="0" max="150" bind-value-to="drawingLineWidth">
+              <!--<h5>Line color</h5>-->
+              <!--<input type="color" bind-value-to="drawingLineColor">-->
+            </div>
+            </div>
+        </div>
+        <div id="canvas-wrapper">
+            <canvas id="canvas"  width="500" height="500"></canvas>
+        </div>
+        <div class="operation_search">
+            <button href="" class="btn btn-success" id="segment" ng-click="segment()"><i class="fa fa-search"></i> Seach by Image</button>
+        </div>
+
+    </div>
+    <div class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 m-t" object-buttons-enabled="getSelected()" id="side_options_2">
+        <div class="outer">
+        <div class="middle">
+        <div class="inner">
         <div ng-show="canvas.getActiveGroup()">
             <button type="button" class="btn btn-app btn-danger btn-object-action bg-maroon btn-move" id="remove-selected-group" ng-click="removeSelected()"><i class="fa fa-trash"></i>Delete</button>
             <button type="button" class="btn btn-app btn-object-action bg-yellow btn-move" id="deselect_group" ng-click="deselect()"><i class="fa fa-minus"></i>Deselect</button>
@@ -35,56 +80,9 @@
     </div>
     </div>
     </div>
-    <div class="col-xs-5 m-t input">
-        <div class="operations">
-            <form id="image-form"  onsubmit="return false;">
-                <input type='file'  id='imgfile' style="display:none"/>
-                <a type='button' class="btn btn-app btn-default" id='btnLoad' ng-click='load_image();'><i class="fa fa-image"></i>Add image</a>
-            </form>
-            <button id="drawing-mode_f"
-              ng-click="setFreeDrawingMode(!getFreeDrawingMode(1),1)"
-              ng-class="{'btn-inverse': getFreeDrawingMode(1)}" class="btn bg-green btn-app">
-              <i class="fa fa-pencil"></i> Draw Foreground
-            </button>
-            <button id="drawing-mode_b"
-              ng-click="setFreeDrawingMode(!getFreeDrawingMode(2),2)"
-              ng-class="{'btn-inverse': getFreeDrawingMode(2)}" class="btn bg-red btn-app">
-              <i class="fa fa-pencil"></i> Draw Background
-            </button>
-            <div ng-show="getFreeDrawingMode(1)" class="drawing-mode">
-                <button id="drawing-mode_x" ng-click="setFreeDrawingMode(!getFreeDrawingMode(1),1)" class="btn bg-red btn-app stop_btn"> <i class="fa fa-close"></i>Stop Drawing!</button>
-            </div>
-            <div ng-show="getFreeDrawingMode(2)" class="drawing-mode">
-                <button id="drawing-mode_x_2" ng-click="setFreeDrawingMode(!getFreeDrawingMode(2),2)" class="btn bg-red btn-app stop_btn"> <i class="fa fa-close"></i>Stop Drawing!</button>
-            </div>
-            <div id="drawing-mode-wrapper"  class="drawing-mode">
-            <div id="drawing-mode-options"  ng-show="getFreeDrawingMode()">
-              <h5>Brush width</h5>
-              <input type="range" value="30" min="0" max="150" bind-value-to="drawingLineWidth">
-              <!--<h5>Line color</h5>-->
-              <!--<input type="color" bind-value-to="drawingLineColor">-->
-            </div>
-            </div>
-            <button href="" class="btn btn-app btn-success" id="segment" ng-click="segment()"><i class="fa fa-arrow-circle-right"></i>Segment</button>
-        </div>
-        <div id="canvas-wrapper">
-            <canvas id="canvas"  width="640" height="640"></canvas>
-        </div>
-        <div class="m-t">
-                <div id="dat_gui" class="gui" ng-show="getDev()"></div>
-        </div>
-    </div>
-    <div class="col-xs-5 output m-t">
-        <div style="width:650px;">
-            <div class="operations_output">
-            <button type="button" id="export" class="btn btn-app   btn-default bg-green" ng-click="export()"><i class="fa fa-arrow-left"></i>Export</button>
-            <button type="button" id="superpixels" ng-show="getDev()" class="btn btn-app   btn-default" alt="Shows all superpixels" ng-click="renderSuperpixels()"><i class="fa fa-th"></i>Show superpixels</button>
-            <button type="button" id="mixed" ng-show="getDev()" class="btn btn-app   btn-default" alt="Shows mixed superpixels" ng-click="renderMixed()"><i class="fa fa-recycle"></i>Show mixed</button>
-            <button type="button" id="unknown" ng-show="getDev()" class="btn btn-app   btn-default" alt="Shows unknown superpixels" ng-click="renderUnknown()"><i class="fa fa-question"></i>Show Unknown</button>
-            <button type="button" id="rasterize" class="btn btn-app btn-default bg-navy" ng-click="download()"><i class="fa fa-download"></i>Download</button>
-            </div>
-            <!--<canvas id="output_canvas" ng-click="addOnClick($event)" width="640" height="640"></canvas>-->
-            <canvas id="output_canvas" width="640" height="640"></canvas>
+    <div class=" col-xs-12 col-sm-12 col-md-12 col-lg-4 m-t">
+        <div class="row">
+            <h2>Result asdmasdnasinaisndoasndaosdnoasndosandoandiasd</h2>
         </div>
     </div>
 </div>
@@ -94,19 +92,13 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Remove backgrounds and Segment objects</h4>
+        <h4 class="modal-title" id="myModalLabel">Search Images by Content</h4>
       </div>
       <div class="modal-body">
-        <iframe src="//giphy.com/embed/l41lV079McHnvsAXS" width="480" height="260" frameBorder="0" style="max-width: 100%" class="giphy-embed" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
-        <h4 class="m-t"><a href="https://www.youtube.com/watch?v=TTbKBxFwELg">Problem loading the gif? Watch demo on Youtube.</a></h4>
-        <!--<img src="/static/img/intro1.png" id="introIMG1">-->
-        <!--<img src="/static/img/intro2.png" id="introIMG2">-->
       </div>
     </div>
   </div>
 </div>
-
-<div id="yaxis"></div>
 {% endblock %}
 
 
@@ -149,7 +141,5 @@
                 </div>
                 </li>
                 <li><a ng-click="showTour()" href="#" id="tutorial"><i class="fa fa-help"></i>Tutorial</a></li>
-                <li><a ng-click="showDev()" href="#" id="dev">{[ dev ? 'Hide' : 'Show' ]} Dev options</a></li>
-                <li><a href="/Experiment">Convnet version</a></li>
-                <li><a href="https://github.com/AKSHAYUBHAT/ImageSegmentation" target="_blank" id="github"><i class="fa fa-github"></i> Github</a></li>
+                <li><a href="https://github.com/AKSHAYUBHAT/VisualSearchServer" target="_blank" id="github"><i class="fa fa-github"></i> Github</a></li>
 {% endblock %}

@@ -9,7 +9,8 @@ logging.basicConfig(level=logging.INFO,
                     filemode='a')
 
 BATCH_SIZE = 1000
-AWS = sys.platform != 'darwin'
+from settings import AWS
+
 
 class NodeLookup(object):
     def __init__(self):
@@ -48,16 +49,22 @@ class NodeLookup(object):
         return self.node_lookup[node_id]
 
 
+def load_network(png=False):
+    with gfile.FastGFile('data/network.pb', 'rb') as f:
+        graph_def = tf.GraphDef()
+        graph_def.ParseFromString(f.read())
+        if png:
+            png_data = tf.placeholder(tf.string, shape=[])
+            decoded_png = tf.image.decode_png(png_data, channels=3)
+            _ = tf.import_graph_def(graph_def, name='',input_map={'DecodeJpeg': decoded_png})
+            return png_data
+        else:
+            _ = tf.import_graph_def(graph_def, name='')
 
-
-with gfile.FastGFile('data/network.pb', 'rb') as f:
-    graph_def = tf.GraphDef()
-    graph_def.ParseFromString(f.read())
-    _ = tf.import_graph_def(graph_def, name='')
 
 
 def get_batch():
-    path = "/mnt/dataset/*" if AWS else "data/test/*.jpg"
+    path = "dataset/*" if AWS else "data/test/*.jpg"
     image_data = {}
     logging.info("starting with path {}".format(path))
     for i,fname in enumerate(glob.glob(path)):
@@ -66,14 +73,11 @@ def get_batch():
         except:
             logging.info("failed to load {}".format(fname))
             pass
-        if i+1 % BATCH_SIZE == 0:
-            logging.info("Loaded {}".format(i))
+        if i % BATCH_SIZE == 0:
+            logging.info("Loaded {}, with {} images".format(i,len(image_data)))
             yield image_data
-            print "Len {}".format(len(image_data))
-            print "\n\n\n"
             image_data = {}
     yield image_data
-    logging.info("Finished {}".format(i))
 
 
 def store_index(features,files,count):
@@ -88,25 +92,26 @@ def store_index(features,files,count):
         os.system('aws s3 mv {} s3://aub3visualsearch/450k/ --region "us-east-1"'.format(files_fname))
         logging.info("uploaded {}".format(feat_fname))
 
-def extract_features(data,sess):
+def extract_features(image_data,sess):
     pool3 = sess.graph.get_tensor_by_name('pool_3:0')
     start = time.time()
     features = []
-    for data in image_data.itervalues():
-        pool3_features = sess.run(pool3,{'DecodeJpeg/contents:0': data})
-        features.append(np.squeeze(pool3_features))
+    files = []
+    for fname,data in image_data.iteritems():
+        try:
+            pool3_features = sess.run(pool3,{'DecodeJpeg/contents:0': data})
+            features.append(np.squeeze(pool3_features))
+        except:
+            logging.error("error while processing fname {}".format(fname))
     logging.info(str(time.time()-start))
-    return features
+    return features,files
 
 if __name__ == '__main__':
+    load_network()
     count = 0
-    start = time.time()
     with tf.Session() as sess:
         node_lookup = NodeLookup()
         for image_data in get_batch():
             logging.info("starting feature extraction batch {}".format(len(image_data)))
             count += 1
-            data = image_data.values()
-            print type(image_data)
-            print type(image_data)[0]
-            features = extract_features(data,sess)
+            features,files = extract_features(image_data,sess)

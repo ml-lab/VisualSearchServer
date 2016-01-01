@@ -1,47 +1,26 @@
 __author__ = 'aub3'
 #!/usr/bin/env python
-from flask import render_template, redirect, request, abort
-from functools import wraps
-try:
-    from google.appengine.api import users
-except:
-    users = None
-import auth
-
-def login_required(func):
-    """Requires standard login credentials"""
-    @wraps(func)
-    def decorated_view(*args, **kwargs):
-        current = users.get_current_user()
-        if not current:
-            return redirect(users.create_login_url(request.url))
-        elif current.email() == 'akshayubhat@gmail.com':
-            return func(*args, **kwargs)
-        else:
-            return redirect(users.create_logout_url(request.url))
-    return decorated_view
-
-
-def admin_required(func):
-    """Requires App Engine admin credentials"""
-    @wraps(func)
-    def decorated_view(*args, **kwargs):
-        if users.get_current_user():
-            if not users.is_current_user_admin():
-                abort(401)  # Unauthorized
-            return func(*args, **kwargs)
-        return redirect(users.create_login_url(request.url))
-    return decorated_view
-
-
+from flask import render_template, redirect, request, abort,jsonify
+import base64
+from inception_indexer import *
+png_data = load_network(True)
+sess = tf.InteractiveSession()
 
 def home():
     payload = {'gae_mode':True}
     return render_template('editor.html',payload = payload)
 
+def search():
+    image_url = request.form['image_url']
+    image_data = base64.decodestring(image_url[22:])
+    pool3 = sess.graph.get_tensor_by_name('pool_3:0')
+    pool3_features = sess.run(pool3,{png_data: image_data})
+    print np.squeeze(pool3_features)
+    return jsonify(test=True)
 
 
 def add_views(app):
     app.add_url_rule('/',view_func=home)
+    app.add_url_rule('/Search',view_func=search,methods=['POST'])
 
 

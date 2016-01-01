@@ -1,7 +1,6 @@
 import os,sys,logging,time
-from fabric.api import env,local,run,sudo,put,cd,lcd,puts,task,get,hide
-from fabric.operations import local as lrun, run
 from fabric.state import env
+from fabric.api import env,local,run,sudo,put,cd,lcd,puts,task,get,hide
 from settings import BUCKET_NAME
 import data
 from settings import USER,private_key,HOST
@@ -27,27 +26,23 @@ def notebook():
     c.NotebookApp.certfile = u'/home/ubuntu/mycert.pem'
     c.NotebookApp.enable_mathjax = False
     c.NotebookApp.password = u'{}'
+    #--certfile=mycert.pem
     :return:
     """
     from IPython.lib.security import passwd
-    sudo("/home/ubuntu/anaconda/bin/ipython notebook --ip=0.0.0.0  --NotebookApp.password={} --no-browser".format(passwd())) #--certfile=mycert.pem
+    command = "ipython notebook --ip=0.0.0.0  --NotebookApp.password={} --no-browser".format(passwd())
+    print command
+    run(command)
 
 
 
 @task
 def setup():
     """
-    Task for setting up required libraries and packages on the remote server
+    Task for initial set up of AWS instance.
     """
-    run("/home/ubuntu/anaconda/bin/pip install --upgrade fabric")
-    run("/home/ubuntu/anaconda/bin/pip install --upgrade boto3")
-    run("/home/ubuntu/anaconda/bin/pip install --upgrade dlib")
-    run("/home/ubuntu/torch/install/bin/luarocks install dpnn")
-    run("/home/ubuntu/torch/install/bin/luarocks install nn")
-    run("/home/ubuntu/torch/install/bin/luarocks install image")
-    run("/home/ubuntu/torch/install/bin/luarocks install torch")
-    sudo("apt-get update")
-    sudo("apt-get install -y awscli")
+    sudo("chmod 777 /mnt/")
+    run("cp -r index /mnt/")
 
 
 
@@ -64,11 +59,14 @@ def connect():
 
 
 @task
-def run():
+def server(rlocal=False):
     """
     start server
     """
-    local('python server.py')
+    if rlocal:
+        local('python server.py')
+    else:
+        run('python server.py')
 
 
 @task

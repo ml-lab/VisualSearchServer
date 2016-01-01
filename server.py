@@ -7,10 +7,10 @@ try:
     google.__path__.append(os.path.join(vendor_dir, 'google'))
 except ImportError:
     pass
-from appcode import app,config
-
+from appcode import app
+from settings import AWS
 if __name__ == '__main__':
-    if config.EC2_MODE:
-        app.run(host="0.0.0.0",port=9992)
+    if AWS:
+        app.run(host="0.0.0.0",port=9000)
     else:
-        app.run(port=9992)
+        app.run(port=9992,debug=True)
