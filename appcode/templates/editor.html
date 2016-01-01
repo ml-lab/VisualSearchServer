@@ -49,7 +49,9 @@
         <div class="operation_search">
             <button href="" class="btn btn-success" id="segment" ng-click="segment()"><i class="fa fa-search"></i> Seach by Image</button>
         </div>
-
+        <div id="status" ng-model="status" ng-show="checkStatus()" class="alert alert-info alert-dismissable">{[ status ]}
+                <button type="button" class="close" ng-click="disableStatus()" aria-hidden="true">x</button>
+        </div>
     </div>
     <div class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 m-t" object-buttons-enabled="getSelected()" id="side_options_2">
         <div class="outer">
@@ -80,11 +82,10 @@
     </div>
     </div>
     </div>
-    <div class=" col-xs-12 col-sm-12 col-md-12 col-lg-4 m-t">
-        <div class="row">
-            <div ng-repeat="item in results" class="col-lg-4" >
-                  <img style="width:100%" ng-src="/static/examples/{[ item ]}" />
-                    <h4 class="text-center">{[ item ]}</h4>
+    <div class=" col-xs-12 col-sm-12 col-md-12 col-lg-6 m-t">
+        <div ng-repeat="row in results" class="row m-t" >
+            <div ng-repeat="item in row" class="col-lg-3 col-sm-6 col-xs-6" >
+              <img style="max-height:95%;max-width:98%" ng-src="/static/examples/{[ item ]}" />
             </div>
         </div>
     </div>
@@ -139,9 +140,6 @@
 
 {% block page_header %}
                 <li>
-                <div id="status" ng-model="status" ng-show="checkStatus()" class="alert alert-info alert-dismissable">{[ status ]}
-                    <button type="button" class="close" ng-click="disableStatus()" aria-hidden="true">x</button>
-                </div>
                 </li>
                 <li><a ng-click="showTour()" href="#" id="tutorial"><i class="fa fa-help"></i>Tutorial</a></li>
                 <li><a href="https://github.com/AKSHAYUBHAT/VisualSearchServer" target="_blank" id="github"><i class="fa fa-github"></i> Github</a></li>

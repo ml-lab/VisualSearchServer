@@ -93,7 +93,7 @@ def nearest(query_vector,index,files):
         dist.append(spatial.distance.cdist(query_vector,temp))
     dist = np.hstack(dist)
     ranked = np.squeeze(dist.argsort())
-    return [files[k] for i,k in enumerate(ranked[:5])]
+    return [files[k] for i,k in enumerate(ranked[:10])]
 
 
 def get_batch():

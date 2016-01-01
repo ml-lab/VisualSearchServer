@@ -221,9 +221,9 @@ function addAccessors($scope) {
     canvas.isDrawingMode = !!value;
     canvas.freeDrawingBrush.color = mode == 1 ? 'green': 'red';
     if (value && mode == 1){
-        $scope.status = "Drawing foreground, click segment to update results."
+        $scope.status = "Highlight regions of interest"
     }else if(value){
-        $scope.status = "Drawing background, click segment to update results."
+        $scope.status = "Highlight regions to exclude"
     }
     if(canvas.isDrawingMode){
         //yax.show();
@@ -375,11 +375,22 @@ $scope.check_movement = function(){
     }
 };
 
+function chunk(arr, size) {
+  var newArr = [];
+  for (var i=0; i<arr.length; i+=size) {
+    newArr.push(arr.slice(i, i+size));
+  }
+  return newArr;
+}
+
+
+
+
 
 $scope.segment = function () {
     $scope.setFreeDrawingMode(false,$scope.current_mode);
     $scope.check_movement();
-    $scope.status = "Starting segementation";
+    $scope.status = "Starting Search";
     if(canvas.isDrawingMode){
         canvas.isDrawingMode = false;
         canvas.deactivateAll().renderAll();
@@ -395,9 +406,8 @@ $scope.segment = function () {
             'image_url': canvas.toDataURL()
         },
         success: function (response) {
-            debugger;
-            console.log(response);
-            $scope.results = response.results;
+            $scope.status = "Search Completed";
+            $scope.results = chunk(response.results, 4);
             $scope.$$phase || $scope.$digest();
 
         }
