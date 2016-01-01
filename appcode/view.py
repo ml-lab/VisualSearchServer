@@ -5,6 +5,7 @@ import base64
 from inception_indexer import *
 png_data = load_network(True)
 sess = tf.InteractiveSession()
+index,files = load_index()
 
 def home():
     payload = {'gae_mode':True}
@@ -15,8 +16,9 @@ def search():
     image_data = base64.decodestring(image_url[22:])
     pool3 = sess.graph.get_tensor_by_name('pool_3:0')
     pool3_features = sess.run(pool3,{png_data: image_data})
-    print np.squeeze(pool3_features)
-    return jsonify(test=True)
+    results = [k.split('/')[-1] for k in nearest(np.squeeze(pool3_features),index,files)]
+    print results
+    return jsonify(results=results)
 
 
 def add_views(app):

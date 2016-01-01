@@ -1,6 +1,8 @@
 import time,glob,re,sys,logging,os
 import numpy as np
 import tensorflow as tf
+from scipy import spatial
+from settings import AWS
 from tensorflow.python.platform import gfile
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
@@ -61,6 +63,37 @@ def load_network(png=False):
         else:
             _ = tf.import_graph_def(graph_def, name='')
 
+def load_index():
+    index,files,findex = [],{},0
+    index_path = "/mnt/index/*.npy" if AWS else "index/3*.npy"
+    for fname in glob.glob(index_path):
+        index.append(np.load(fname))
+        for f in file(fname.replace(".feats_pool3.npy",".files")):
+            files[findex] = f.strip()
+            findex += 1
+        print fname
+    index = np.concatenate(index)
+    return index,files
+
+def nearest(query_vector,index,files):
+    query_vector= query_vector[np.newaxis,:]
+    temp = []
+    dist = []
+    print "started"
+    for k in xrange(index.shape[0]):
+        temp.append(index[k])
+        if (k+1) % 50000 == 0:
+            temp = np.transpose(np.dstack(temp)[0])
+            print k+1
+            dist.append(spatial.distance.cdist(query_vector,temp))
+            temp = []
+    if temp:
+        temp = np.transpose(np.dstack(temp)[0])
+        print k+1
+        dist.append(spatial.distance.cdist(query_vector,temp))
+    dist = np.hstack(dist)
+    ranked = np.squeeze(dist.argsort())
+    return [files[k] for i,k in enumerate(ranked[:5])]
 
 
 def get_batch():
