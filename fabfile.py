@@ -2,6 +2,7 @@ import os,sys,logging,time
 from fabric.state import env
 from fabric.api import env,local,run,sudo,put,cd,lcd,puts,task,get,hide
 from settings import BUCKET_NAME
+import inception
 import data
 from settings import USER,private_key,HOST
 env.user = USER
@@ -74,8 +75,14 @@ def index():
     """
     Index images
     """
-    local('dev_appserver.py .')
-
+    inception.load_network()
+    count = 0
+    with inception.tf.Session() as sess:
+        for image_data in inception.get_batch():
+            logging.info("starting feature extraction batch {}".format(len(image_data)))
+            count += 1
+            features,files = inception.extract_features(image_data,sess)
+            print len(features)
 
 @task
 def clear():

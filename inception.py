@@ -11,7 +11,6 @@ logging.basicConfig(level=logging.INFO,
                     filemode='a')
 
 BATCH_SIZE = 1000
-from settings import AWS
 
 
 class NodeLookup(object):
@@ -75,7 +74,7 @@ def load_index():
     index = np.concatenate(index)
     return index,files
 
-def nearest(query_vector,index,files):
+def nearest(query_vector,index,files,n=12):
     query_vector= query_vector[np.newaxis,:]
     temp = []
     dist = []
@@ -84,16 +83,14 @@ def nearest(query_vector,index,files):
         temp.append(index[k])
         if (k+1) % 50000 == 0:
             temp = np.transpose(np.dstack(temp)[0])
-            print k+1
             dist.append(spatial.distance.cdist(query_vector,temp))
             temp = []
     if temp:
         temp = np.transpose(np.dstack(temp)[0])
-        print k+1
         dist.append(spatial.distance.cdist(query_vector,temp))
     dist = np.hstack(dist)
     ranked = np.squeeze(dist.argsort())
-    return [files[k] for i,k in enumerate(ranked[:10])]
+    return [files[k] for i,k in enumerate(ranked[:n])]
 
 
 def get_batch():
@@ -150,12 +147,3 @@ def download(filename):
     else:
         os.system("aws s3 cp s3://aub3data/dataset/{} appcode/static/examples/{}".format(filename.split("/")[-1],filename.split("/")[-1]))
 
-if __name__ == '__main__':
-    load_network()
-    count = 0
-    with tf.Session() as sess:
-        node_lookup = NodeLookup()
-        for image_data in get_batch():
-            logging.info("starting feature extraction batch {}".format(len(image_data)))
-            count += 1
-            features,files = extract_features(image_data,sess)

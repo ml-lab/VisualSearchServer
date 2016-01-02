@@ -2,13 +2,13 @@ __author__ = 'aub3'
 #!/usr/bin/env python
 from flask import render_template, redirect, request, abort,jsonify
 import base64
-from inception_indexer import *
+from inception import *
 png_data = load_network(True)
 sess = tf.InteractiveSession()
 index,files = load_index()
 
 def home():
-    payload = {'gae_mode':True}
+    payload = {'gae_mode':False}
     return render_template('editor.html',payload = payload)
 
 def search():
