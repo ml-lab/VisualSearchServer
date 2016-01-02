@@ -402,7 +402,7 @@ $scope.search_quick = function () {
             'image_url': canvas.toDataURL()
         },
         success: function (response) {
-            $scope.status = "Search Completed";
+            $scope.status = "Approximate Search Completed";
             $scope.results = chunk(response.results, 4);
             $scope.$$phase || $scope.$digest();
 
@@ -416,7 +416,7 @@ $scope.search_quick = function () {
 $scope.search = function () {
     $scope.setFreeDrawingMode(false,$scope.current_mode);
     $scope.check_movement();
-    $scope.status = "Starting Search";
+    $scope.status = "Starting Exact Search can take up to a minute";
     if(canvas.isDrawingMode){
         canvas.isDrawingMode = false;
         canvas.deactivateAll().renderAll();
@@ -432,7 +432,7 @@ $scope.search = function () {
             'image_url': canvas.toDataURL()
         },
         success: function (response) {
-            $scope.status = "Search Completed";
+            $scope.status = "Exact Search Completed";
             $scope.results = chunk(response.results, 4);
             $scope.$$phase || $scope.$digest();
 

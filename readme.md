@@ -8,8 +8,7 @@ model trained on the imagenet data. The easist way to use this codebase is to la
  
 The code implements two methods, a server that handles image search, and a simple indexer that extracts pool3 features.
 
-![Alpha Screenshot](appcode/static/alpha.png "Alpha Screenshot")     
-![Alpha Screenshot](appcode/static/alpha2.png "Alpha Screenshot")     
+![Alpha Screenshot](appcode/static/alpha3.png "Alpha Screenshot")     
 
 
 
