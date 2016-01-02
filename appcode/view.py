@@ -22,9 +22,21 @@ def search():
     print results
     return jsonify(results=results)
 
+def search_quick():
+    image_url = request.form['image_url']
+    image_data = base64.decodestring(image_url[22:])
+    pool3 = sess.graph.get_tensor_by_name('pool_3:0')
+    pool3_features = sess.run(pool3,{png_data: image_data})
+    results = [k.split('/')[-1] for k in nearest_fast(np.squeeze(pool3_features),index,files)]
+    for fname in results:
+        download(fname)
+    print results
+    return jsonify(results=results)
+
 
 def add_views(app):
     app.add_url_rule('/',view_func=home)
     app.add_url_rule('/Search',view_func=search,methods=['POST'])
+    app.add_url_rule('/Quick',view_func=search_quick,methods=['POST'])
 
 

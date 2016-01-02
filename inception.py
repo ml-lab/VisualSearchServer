@@ -4,12 +4,18 @@ import tensorflow as tf
 from scipy import spatial
 from settings import AWS
 from tensorflow.python.platform import gfile
+from nearpy import Engine
+from nearpy.hashes import RandomBinaryProjections
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                     datefmt='%m-%d %H:%M',
                     filename='logs/worker.log',
                     filemode='a')
 
+DIMENSIONS = 2048
+PROJECTIONBITS = 16
+RBP = RandomBinaryProjections('rbp', PROJECTIONBITS)
+ENGINE = Engine(DIMENSIONS, lshashes=[RBP])
 BATCH_SIZE = 1000
 
 
@@ -67,12 +73,14 @@ def load_index():
     index_path = "/mnt/index/*.npy" if AWS else "index/3*.npy"
     for fname in glob.glob(index_path):
         index.append(np.load(fname))
-        for f in file(fname.replace(".feats_pool3.npy",".files")):
+        for i,f in enumerate(file(fname.replace(".feats_pool3.npy",".files"))):
             files[findex] = f.strip()
+            ENGINE.store_vector(index[-1][i,:],"{}".format(findex))
             findex += 1
         print fname
     index = np.concatenate(index)
     return index,files
+
 
 def nearest(query_vector,index,files,n=12):
     query_vector= query_vector[np.newaxis,:]
@@ -91,6 +99,10 @@ def nearest(query_vector,index,files,n=12):
     dist = np.hstack(dist)
     ranked = np.squeeze(dist.argsort())
     return [files[k] for i,k in enumerate(ranked[:n])]
+
+
+def nearest_fast(query_vector,index,files,n=12):
+    return [files[int(k)] for v,k,d in ENGINE.neighbours(query_vector)[:n]]
 
 
 def get_batch():

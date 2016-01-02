@@ -383,11 +383,37 @@ function chunk(arr, size) {
   return newArr;
 }
 
+$scope.search_quick = function () {
+    $scope.setFreeDrawingMode(false,$scope.current_mode);
+    $scope.check_movement();
+    $scope.status = "Starting Quick Search";
+    if(canvas.isDrawingMode){
+        canvas.isDrawingMode = false;
+        canvas.deactivateAll().renderAll();
+    }
+    $scope.$$phase || $scope.$digest();
+    $scope.refreshData();
+    $.ajax({
+        type: "POST",
+        url: '/Quick',
+        dataType: 'json',
+        async: true,
+        data: {
+            'image_url': canvas.toDataURL()
+        },
+        success: function (response) {
+            $scope.status = "Search Completed";
+            $scope.results = chunk(response.results, 4);
+            $scope.$$phase || $scope.$digest();
+
+        }
+    });
+};
 
 
 
 
-$scope.segment = function () {
+$scope.search = function () {
     $scope.setFreeDrawingMode(false,$scope.current_mode);
     $scope.check_movement();
     $scope.status = "Starting Search";
