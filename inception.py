@@ -14,8 +14,9 @@ logging.basicConfig(level=logging.INFO,
 
 DIMENSIONS = 2048
 PROJECTIONBITS = 16
-RBP = RandomBinaryProjections('rbp', PROJECTIONBITS)
-ENGINE = Engine(DIMENSIONS, lshashes=[RBP])
+ENGINE = Engine(DIMENSIONS, lshashes=[RandomBinaryProjections('rbp', PROJECTIONBITS,rand_seed=2611),
+                                      RandomBinaryProjections('rbp', PROJECTIONBITS,rand_seed=261),
+                                      RandomBinaryProjections('rbp', PROJECTIONBITS,rand_seed=26)])
 BATCH_SIZE = 1000
 
 
